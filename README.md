@@ -1,5 +1,7 @@
 # OpenAI Codex Conversation
 
+<img src="custom_components/openai_codex/brand/icon.png" alt="Cyan house-shaped chat bubble with a teal sparkle" width="144" height="144">
+
 A custom Home Assistant conversation integration that signs in with your ChatGPT account instead of an OpenAI API key. Supports Assist conversations, follow-up questions, and optional control through Home Assistant's exposed tools.
 
 **Requires Home Assistant 2026.9.0 or newer and a ChatGPT account with Codex access.** This is an unofficial integration using Codex's subscription backend. Access and usage limits depend on your account; OpenAI can change the backend independently of this integration. No separate API key is used.
@@ -69,6 +71,7 @@ Tests use the real Home Assistant 2026.9.2 Python classes with mocked OpenAI res
 ## Project files and protocol references
 
 - `custom_components/openai_codex/`: installable integration, device login, conversation agent, and translations.
+- `custom_components/openai_codex/brand/icon.png`: transparent house-and-chat logo, also used for local Home Assistant branding.
 - `tests/`: authorization, response parsing, config flow, and native HA conversation checks.
 - `hacs.json`: HACS metadata; `requirements-dev.txt`: reproducible validation environment.
 - [OpenAI device-code authentication](https://developers.openai.com/codex/auth).
