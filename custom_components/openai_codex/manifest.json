@@ -1,0 +1,13 @@
+{
+  "domain": "openai_codex",
+  "name": "OpenAI Codex Conversation",
+  "codeowners": ["@javaDevJT"],
+  "config_flow": true,
+  "dependencies": ["conversation", "llm"],
+  "documentation": "https://github.com/javaDevJT/home-assistant-openai-codex",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/javaDevJT/home-assistant-openai-codex/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

@@ -1,0 +1,5 @@
+homeassistant==2026.9.2
+gazetteer-matcher==1.1.0
+hassil==3.12.0
+home-assistant-intents==2026.8.28
+ruff==0.16.7

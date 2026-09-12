@@ -1,0 +1,47 @@
+{
+  "title": "OpenAI Codex Conversation",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sign in with OpenAI",
+        "description": "Use a ChatGPT account with Codex access. This unofficial integration uses your subscription limits. Enable device code login in ChatGPT Security settings first. Continue to get a one-time code; enter your password only on OpenAI's website."
+      },
+      "reauth_confirm": {
+        "title": "Reconnect OpenAI",
+        "description": "Your OpenAI authorization has expired or was revoked. Continue to sign in again with the same ChatGPT account."
+      },
+      "login_failed": {
+        "title": "Try signing in again",
+        "description": "Continue to request a new device code. Check that device code login is enabled in your ChatGPT Security settings."
+      }
+    },
+    "progress": {
+      "authorize": "Open [OpenAI sign-in]({verification_url}) and enter **{user_code}**. This screen updates automatically when you approve access. The code expires after 15 minutes."
+    },
+    "error": {
+      "cannot_connect": "Could not complete OpenAI sign-in. Check your connection and that device code login is enabled, then try again.",
+      "login_expired": "The device code expired. Continue to request a new one."
+    },
+    "abort": {
+      "already_configured": "This ChatGPT account is already configured.",
+      "reauth_successful": "OpenAI sign-in was renewed.",
+      "wrong_account": "Sign in with the account originally used for this integration. To use a different account, add another integration."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Conversation settings",
+        "description": "Choose a model available to your Codex account. To control your home, select Assist under Home Assistant tools and expose the desired entities to Assist. Leave tools empty for conversation only.",
+        "data": {
+          "model": "Codex model",
+          "prompt": "Instructions",
+          "llm_hass_api": "Home Assistant tools"
+        }
+      }
+    },
+    "error": {
+      "invalid_model": "Enter a model name."
+    }
+  }
+}
