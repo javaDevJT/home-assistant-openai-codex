@@ -186,6 +186,7 @@ async def _read_response(response: Any) -> dict[str, Any]:
     """Read a bounded SSE response, including events split across TCP chunks."""
     buffer = bytearray()
     data_lines: list[bytes] = []
+    output_items: dict[int, dict[str, Any]] = {}
     received = 0
     async for chunk in response.content.iter_any():
         received += len(chunk)
@@ -209,15 +210,26 @@ async def _read_response(response: Any) -> dict[str, Any]:
                 if not isinstance(event, dict):
                     raise CodexError("OpenAI returned an invalid stream event")
                 kind = event.get("type")
+                if kind == "response.output_item.done":
+                    item = event.get("item")
+                    index = event.get("output_index", len(output_items))
+                    if type(index) is not int or index < 0 or not isinstance(item, dict):
+                        raise CodexError("OpenAI returned an invalid completed output item")
+                    output_items[index] = item
                 if kind in ("response.completed", "response.done"):
                     result = event.get("response")
                     if (
                         not isinstance(result, dict)
-                        or result.get("status") != "completed"
-                        or not isinstance(result.get("output"), list)
+                        or result.get("status", "completed") != "completed"
+                        or not isinstance(result.get("output", []), list)
                     ):
                         raise CodexError("OpenAI did not complete the response")
-                    return result
+                    # Codex may finish with only a response ID; items arrived earlier.
+                    return {
+                        **result,
+                        "output": result.get("output")
+                        or [output_items[index] for index in sorted(output_items)],
+                    }
                 if kind in ("error", "response.failed", "response.incomplete"):
                     raise CodexError("OpenAI could not complete the response")
     raise CodexError("OpenAI disconnected before completing the response")
@@ -299,7 +311,7 @@ class CodexClient:
                         "Authorization": f"Bearer {token}",
                         "ChatGPT-Account-Id": self._data["account_id"],
                         "originator": "home_assistant_openai_codex",
-                        "User-Agent": "home-assistant-openai-codex/0.1.0",
+                        "User-Agent": "home-assistant-openai-codex/0.1.1",
                         "Accept": "text/event-stream",
                     },
                     timeout=ClientTimeout(total=120, sock_read=60),

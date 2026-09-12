@@ -69,6 +69,103 @@ def completed():
 
 
 class ClientTest(unittest.IsolatedAsyncioTestCase):
+    async def test_streamed_items_survive_empty_completion_output(self):
+        expected, _ = completed()
+        item = expected["output"][0]
+        for final_output in (
+            {"status": "completed", "output": []},
+            {"status": "completed"},
+            {"id": "resp1"},
+        ):
+            with self.subTest(final_output=final_output):
+                events = [
+                    {
+                        "type": "response.output_item.added",
+                        "output_index": 0,
+                        "item": {"type": "message", "content": []},
+                    },
+                    {"type": "response.output_text.delta", "delta": "Hello"},
+                    {"type": "response.output_item.done", "output_index": 0, "item": item},
+                    {"type": "response.completed", "response": final_output},
+                ]
+                raw = b"".join(b"data: " + json.dumps(event).encode() + b"\n\n" for event in events)
+                response = Response(chunks=[raw[i : i + 7] for i in range(0, len(raw), 7)])
+                result = await api._read_response(response)
+                self.assertEqual(result["output"], [item])
+                from custom_components.openai_codex.conversation import _assistant_content
+
+                self.assertEqual(_assistant_content(result, "agent", set()).content, "Hello")
+
+    async def test_codex_stream_can_omit_output_indexes_and_completion_status(self):
+        # Matches Codex's parses_items_and_completed SSE regression fixture.
+        events = [
+            {
+                "type": "response.output_item.done",
+                "item": {
+                    "type": "message",
+                    "role": "assistant",
+                    "content": [{"type": "output_text", "text": "Hello"}],
+                },
+            },
+            {
+                "type": "response.output_item.done",
+                "item": {
+                    "type": "message",
+                    "role": "assistant",
+                    "content": [{"type": "output_text", "text": "World"}],
+                },
+            },
+            {"type": "response.completed", "response": {"id": "resp1"}},
+        ]
+        raw = b"".join(b"data: " + json.dumps(event).encode() + b"\n\n" for event in events)
+        result = await api._read_response(Response(chunks=[raw]))
+        self.assertEqual(
+            [item["content"][0]["text"] for item in result["output"]], ["Hello", "World"]
+        )
+
+    async def test_completed_items_do_not_hide_a_failed_or_truncated_stream(self):
+        _, raw = completed()
+        item = {
+            "type": "response.output_item.done",
+            "output_index": 0,
+            "item": {"type": "message", "content": [{"type": "output_text", "text": "Partial"}]},
+        }
+        prefix = b"data: " + json.dumps(item).encode() + b"\n\n"
+        for end in (
+            b"",
+            b'data: {"type":"response.failed"}\n\n',
+            b'data: {"type":"response.incomplete"}\n\n',
+        ):
+            with self.subTest(end=end), self.assertRaises(api.CodexError):
+                await api._read_response(Response(chunks=[prefix, end]))
+        # A full terminal response is authoritative, without duplicate earlier items.
+        result = await api._read_response(Response(chunks=[prefix, raw]))
+        self.assertEqual([item["content"][0]["text"] for item in result["output"]], ["Hello"])
+
+    async def test_streamed_tool_and_reasoning_items_keep_order_without_duplicates(self):
+        reasoning = {
+            "type": "reasoning",
+            "id": "rs_1",
+            "encrypted_content": "encrypted",
+            "summary": [],
+        }
+        call = {
+            "type": "function_call",
+            "id": "fc_1",
+            "call_id": "call_1",
+            "name": "HassTurnOn",
+            "arguments": "{}",
+        }
+        events = [
+            {"type": "response.output_item.done", "output_index": 1, "item": call},
+            {"type": "response.output_item.done", "output_index": 0, "item": reasoning},
+            {"type": "response.output_item.done", "output_index": 1, "item": call},
+            {"type": "response.completed", "response": {"status": "completed", "output": []}},
+        ]
+        raw = b"".join(b"data: " + json.dumps(event).encode() + b"\n\n" for event in events)
+        result = await api._read_response(Response(chunks=[raw]))
+        self.assertEqual(result["output"], [reasoning, call])
+
     async def test_device_code_aliases_and_exchange(self):
         for key in ("user_code", "usercode"):
             with self.subTest(key=key):

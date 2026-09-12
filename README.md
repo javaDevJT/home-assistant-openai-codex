@@ -10,7 +10,7 @@ A custom Home Assistant conversation integration that signs in with your ChatGPT
 
 ### Manual installation
 
-1. Extract `openai_codex-0.1.0.zip` into your Home Assistant configuration directory. The result must be `/config/custom_components/openai_codex/manifest.json`.
+1. Extract the ZIP from the latest release into your Home Assistant configuration directory. The result must be `/config/custom_components/openai_codex/manifest.json`.
 2. Restart Home Assistant.
 3. Go to **Settings → Devices & services → Add integration → OpenAI Codex Conversation**.
 4. Enable **device code login** in your ChatGPT account's **Security** settings, or ask your ChatGPT workspace administrator to enable it.
@@ -64,11 +64,17 @@ python3.14 -m venv .venv
 .venv/bin/ruff format --check custom_components tests
 ```
 
-Local verification on September 12, 2026: all 23 tests passed; Ruff lint and formatting checks passed; the ZIP passed its integrity check.
+Local verification on September 12, 2026: all 27 tests passed; Ruff lint and formatting checks passed; the ZIP passed its integrity check.
 
 Tests use the real Home Assistant 2026.9.2 Python classes with mocked OpenAI responses. No subscription login, inference request, live Home Assistant installation, or real device action is performed by the tests. Actual account authorization and a first Assist conversation must be checked after installation; local tests do not establish account access or live backend compatibility.
 
 ## Project files and protocol references
+
+### Release 0.1.1
+
+Fixes `OpenAI returned no answer` when Codex sends complete messages in earlier stream events and an empty final response. The parser now preserves completed text, tool calls, and encrypted reasoning while still rejecting failed or interrupted streams. Includes the integration logo. Update through HACS and restart Home Assistant; your existing sign-in is retained.
+
+### Files and sources
 
 - `custom_components/openai_codex/`: installable integration, device login, conversation agent, and translations.
 - `custom_components/openai_codex/brand/icon.png`: transparent house-and-chat logo, also used for local Home Assistant branding.
@@ -76,6 +82,7 @@ Tests use the real Home Assistant 2026.9.2 Python classes with mocked OpenAI res
 - `hacs.json`: HACS metadata; `requirements-dev.txt`: reproducible validation environment.
 - [OpenAI device-code authentication](https://developers.openai.com/codex/auth).
 - [OpenAI Codex protocol source](https://github.com/openai/codex/tree/53c542d944c705f3a66780a19223223bee57cbb6/codex-rs): device authorization in `login/src/device_code_auth.rs`, refresh in `login/src/auth/manager.rs`, and requests in `codex-api/src/endpoint/responses.rs`.
+- [Codex stream parser and completion regression fixture](https://github.com/openai/codex/blob/b4c864dd6497ae764e6a826300b34f7ca77ba965/codex-rs/codex-api/src/sse/responses.rs): completed output items arrive before the final response metadata.
 - [Home Assistant OpenAI integration source, 2026.9.2](https://github.com/home-assistant/core/tree/2026.9.2/homeassistant/components/openai_conversation).
 - [Home Assistant conversation source, 2026.9.2](https://github.com/home-assistant/core/tree/2026.9.2/homeassistant/components/conversation).
 
