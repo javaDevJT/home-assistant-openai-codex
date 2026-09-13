@@ -26,6 +26,8 @@ A custom Home Assistant conversation integration that signs in with your ChatGPT
 
 This is a HACS **custom repository**, not an entry in the HACS default catalog. HACS installs from the repository. The [release ZIP](https://github.com/javaDevJT/home-assistant-openai-codex/releases/latest) is for manual installation.
 
+Default-catalog inclusion was submitted on September 13, 2026 in [hacs/default#10951](https://github.com/hacs/default/pull/10951) and is pending maintainer approval. The [v0.1.2 release](https://github.com/javaDevJT/home-assistant-openai-codex/releases/tag/v0.1.2) was published after [HACS, Hassfest, and all 27 tests passed](https://github.com/javaDevJT/home-assistant-openai-codex/actions/runs/34758408402), with no ignored checks. Use the custom-repository steps above until inclusion is approved.
+
 ## Settings and device control
 
 Open the integration's **Configure** dialog to change:
