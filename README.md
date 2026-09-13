@@ -54,6 +54,10 @@ This version implements the conversation-agent portion of the built-in OpenAI in
 
 ## Development and validation
 
+[![Validate](https://github.com/javaDevJT/home-assistant-openai-codex/actions/workflows/validate.yml/badge.svg)](https://github.com/javaDevJT/home-assistant-openai-codex/actions/workflows/validate.yml)
+
+GitHub Actions runs HACS validation without ignored checks, Home Assistant's Hassfest, and the test and lint checks below on each push and pull request.
+
 Requires Python 3.14.2 or newer. From this directory:
 
 ```sh
@@ -70,6 +74,10 @@ Tests use the real Home Assistant 2026.9.2 Python classes with mocked OpenAI res
 
 ## Project files and protocol references
 
+### Release 0.1.2
+
+Adds the automated HACS and Hassfest validation workflows and repository metadata required for default-catalog submission.
+
 ### Release 0.1.1
 
 Fixes `OpenAI returned no answer` when Codex sends complete messages in earlier stream events and an empty final response. The parser now preserves completed text, tool calls, and encrypted reasoning while still rejecting failed or interrupted streams. Includes the integration logo. Update through HACS and restart Home Assistant; your existing sign-in is retained.
@@ -80,6 +88,7 @@ Fixes `OpenAI returned no answer` when Codex sends complete messages in earlier 
 - `custom_components/openai_codex/brand/icon.png`: transparent house-and-chat logo, also used for local Home Assistant branding.
 - `tests/`: authorization, response parsing, config flow, and native HA conversation checks.
 - `hacs.json`: HACS metadata; `requirements-dev.txt`: reproducible validation environment.
+- `.github/workflows/validate.yml`: HACS, Hassfest, unit-test, and lint checks.
 - [OpenAI device-code authentication](https://developers.openai.com/codex/auth).
 - [OpenAI Codex protocol source](https://github.com/openai/codex/tree/53c542d944c705f3a66780a19223223bee57cbb6/codex-rs): device authorization in `login/src/device_code_auth.rs`, refresh in `login/src/auth/manager.rs`, and requests in `codex-api/src/endpoint/responses.rs`.
 - [Codex stream parser and completion regression fixture](https://github.com/openai/codex/blob/b4c864dd6497ae764e6a826300b34f7ca77ba965/codex-rs/codex-api/src/sse/responses.rs): completed output items arrive before the final response metadata.

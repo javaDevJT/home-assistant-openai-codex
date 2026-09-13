@@ -311,7 +311,7 @@ class CodexClient:
                         "Authorization": f"Bearer {token}",
                         "ChatGPT-Account-Id": self._data["account_id"],
                         "originator": "home_assistant_openai_codex",
-                        "User-Agent": "home-assistant-openai-codex/0.1.1",
+                        "User-Agent": "home-assistant-openai-codex/0.1.2",
                         "Accept": "text/event-stream",
                     },
                     timeout=ClientTimeout(total=120, sock_read=60),
